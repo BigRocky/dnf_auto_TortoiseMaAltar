@@ -1,0 +1,471 @@
+﻿D
+//窗口设置800x600，移动至屏幕左上角
+//缔造改下按键，不要占用F10
+//加点：蓝影马萨乔、克雷泽的领悟、基础修炼、护甲防御、炫波掌、召唤阵、哥布林弓兵、直升机+MAX
+//选择键位模式、关卡、角色数量
+//第一个角色仓库F10启动
+//默认用的马萨乔在4键位，若要改变键位请在“ZHLY”子程序对应修改
+
+//Dim MyArray, JWMS, GQXZ, JSSL, JS, PX, PY,DirectionKey,Attack
+UserVar GQXZ=DropList{"3 - 1":0|"1 - 1":1}=0 "关卡选择"
+//UserVar JWMS=DropList{"WASD键位":0|"←↑→键位":1}=1 "键位模式"
+UserVar DirectionKey=DropList{"WASD键位":0|"←↑→键位":1}=1 "方向键"
+UserVar Attack=DropList{"J":0|"X":1}=1 "攻击键"
+//UserVar JSSL=DropList{"1":1|"2":2|"3":3|"4":4|"5":5|"6":6|"7":7|"8":8|"9":9|"10":10|"11":11}=1 "角色数量"
+UserVar JSSL=1 "角色数量"
+UserVar auto_poweroff = DropList{"否":0|"是":1}=0 "打完自动关机"
+
+i = 0
+JS = 1
+Round1F3 = 0
+IsCreator=0
+
+//PX = 256
+//PY = 185
+//下面这句是遍历符合窗口标题("地下城与勇士")的句柄保存到数组(HwndEx)里
+//HwndEx = Plugin.Window.Search("地下城与勇士")
+//下面这句用于分割字符串,将获得的句柄组分割   
+//MyArray = Split(HwndEx, "|")
+//DNF = CLng(MyArray(0))
+//移动窗口到(0, 0)位置
+//Call Plugin.Window.Move(DNF, 0, 0)
+//Delay 1500
+
+//进入祭坛
+rem after_XR
+Delay 2000
+Call FindPic(0,0,800,600,"Attachment:\JRJT.bmp",0.9,intX1,intY1)
+If intX1 > 0 and intY1 > 0 Then
+	Call FindPic(0,0,800,600,"Attachment:\Creator.bmp",0.9,intX2,intY2)
+	If intX2 > 0 and intY2 > 0 Then
+		IsCreator =1
+		DirectionKey = 0
+		Attck=1
+	End If	
+Else
+GOTO after_XR
+End If
+
+Rem GO
+//MoveTo 700,130
+MoveTo intX1+10,intY1+5
+Delay 100
+LeftDown 1
+Delay 300
+LeftUp 1
+Delay 3000
+Call FindPic(0,0,800,600,"Attachment:\KS.bmp",0.9,intX,intY)
+If intX < 0 and intY < 0 Then 
+    Delay 1000
+    Goto GO
+End If
+Call REMAIN_TIMES
+Call GQPD//前三关未过，还没有马乌龟技能
+Rem DKS
+Delay 100
+Call FindPic(0,0,800,600,"Attachment:\KSPD3.bmp",0.5,intX,intY)
+If intX < 0 and intY < 0 Then 
+    Delay 100
+    Goto DKS
+Else 
+    If DirectionKey = 0 Then 
+	    //If Round1F3=0
+        KeyDownS "D", 1
+        Delay 8000
+        KeyUpS "D", 1
+		//End If
+        Delay 100
+        
+    ElseIf DirectionKey = 1 Then
+        //If Round1F3=0
+		KeyDownS "Right", 1
+        Delay 8000
+        KeyUpS "Right", 1
+		//End If
+        Delay 100
+        
+    End If
+	
+	If Attack=0 Then
+		IDJ = BeginThread(J)
+	ElseIf Attack =1 Then
+		IDX = BeginThread(X)
+	End If
+	
+End If
+Call HGUP 
+StopThread IDX
+StopThread IDJ
+Delay 5000
+Call REMAIN_TIMES
+Goto GO
+
+
+
+Sub HGUP
+    s = 0
+    a = 0
+    While s = 0
+        Call FindPic(0,0,800,600,"Attachment:\HGGRAY.bmp",0.9,intX,intY)
+        If intX < 0 and intY < 0 Then          
+            Call Plugin.Msg.Tips("升级HG！")
+            MoveTo 125, 530
+            Delay 100
+            LeftDown 1
+            Delay 100
+            LeftUp 1
+            Delay 1000
+            a = a + 1
+        End If
+        Delay 1000
+        If a = 3 Then 
+            Call ZHLY//召唤蓝影
+            s = 1
+            a = 0
+        End If
+        Delay 1000
+    Wend
+End Sub
+
+Sub J()
+    While i = 0
+        KeyPressS "J", 3
+        Delay 100
+    Wend 
+End Sub
+
+Sub X()
+    While i = 0
+        KeyPressS "X", 3
+        Delay 100
+    Wend 
+End Sub
+
+Sub REMAIN_TIMES
+    //入场次数判断
+    Call FindPic(0,0,800,600,"Attachment:\000_4.bmp",1,intX,intY)
+    If intX > 0 and intY > 0 Then 
+        If JSSL = JS Then 
+            
+            If auto_poweroff = 1 Then 
+            	Call Plugin.Msg.Tips("全部刷完，10秒后自动关机... " & Chr(10) & "F12取消")
+            	Delay 5266
+            	j_second=10
+				While j_second
+					Call Plugin.Msg.Tips(j_second)
+					j_second = j_second - 1
+					Delay 1000
+				Wend
+
+            	
+            	Call Plugin.Msg.Tips("正在关机...")
+           		
+				Delay 100
+            	Call Plugin.Sys.ExitOS(1)
+            	EndScript
+            else
+            	MsgBox "角色上限，脚本停止！"
+           		EndScript
+            
+            End If
+            
+        Else 
+            MoveTo 730, 550
+            Delay 100
+            LeftDown 1
+            Delay 150
+            LeftUp 1
+            Delay 1500
+            Call Plugin.Msg.Tips("第"&JS&"个角色刷完，换角色！")
+            Call XR
+        End If
+    End If
+End Sub
+    
+    
+    //关卡判断
+    
+SUB GQPD//前三关未过，还没有马乌龟技能
+    //Call FindPic(216, 444, 311, 536, "Attachment:\GRAY1_3.bmp", 0.9, intX2, intY2)//其实应该判断1-4，但是前三关实际还不如手动，懒得折腾脚本了…
+	Call FindPic(280, 395, 380, 495, "Attachment:\GRAY1_4.bmp", 0.9, intX2, intY2)//好吧还是改一下...
+	If intX2 > 0 and intY2 > 0 Then 
+    	Round1F3 = 1//前三关未过，还没有马乌龟技能
+	Else
+		Round1F3 = 0
+    End If
+	
+   	Call FindPic(300, 240, 385, 310, "Attachment:\GRAY1_3.bmp", 0.9, intX3, intY3)//判断第一轮3_1是否打过	
+   	If intX3 > 0 and intY3 > 0 Then 	
+    	//MoveTo 368, 138 //4-4的位置点一下
+    	MoveTo 130, 427 //1-1的位置点一下
+		Delay 500
+		LeftClick 3
+		Delay 500
+		LeftClick 3
+		Delay 500
+		KeyPress "Esc", 1
+		Delay 500
+
+		For 12
+        	Call U
+        Next
+        Delay 500
+        
+        For 5
+            Call R
+        Next 
+        Delay 500
+        
+        KeyPress "Space", 2
+        Delay 1000
+        
+        MoveTo 368, 368
+        Delay 100
+        
+        LeftDown 1
+        Delay 300
+        LeftUp 1
+    
+			
+		else 
+			call GKPD2
+   	End If
+   		
+	
+end sub
+   
+   	
+   	
+ sub GKPD2//前三关已过，确保有马乌龟技能
+   	
+   		MoveTo 130, 427 //1-1的位置点一下
+		Delay 500
+		LeftClick 3
+		Delay 500
+		LeftClick 3
+		Delay 500
+		KeyPress "Esc", 1
+		Delay 500
+	rem check	
+    If GQXZ = 0 Then 
+        Call FindPic(0,0,800,600,"Attachment:\3_1.bmp",0.9,intX,intY)
+    ElseIf GQXZ = 1 Then
+        Call FindPic(0, 0, 800, 600, "Attachment:\1_1.bmp", 0.9, intX, intY)
+    End If
+    
+    If intX > 0 and intY > 0 Then 
+        //难度选择
+        For 5
+            Call R
+        Next 
+        Delay 1000
+        
+        KeyPress "Space", 2
+        Delay 1000
+        
+        MoveTo 368, 368
+        Delay 100
+        
+        LeftDown 1
+        Delay 300
+        LeftUp 1
+    Else 
+        //If GQXZ = 0 Then 
+            Call U
+        //ElseIf GQXZ = 1 Then
+            //Call D
+        //End If
+        Delay 100
+        Goto check
+    End If
+End Sub
+
+Sub ZHLY//召唤蓝影
+    Call Plugin.Msg.Tips("开始检测选择界面并召唤蓝影！")
+    Rem JC
+    
+    Call FindPic(0,0,800,600,"Attachment:\XZGQ.bmp",0.7,intX,intY)//检测通关显示的“选择关卡”
+    If intX > 0 and intY > 0 Then 
+        Delay 1000
+        MoveTo intX, intY
+        Delay 100
+        LeftDown 1
+        Delay 100
+        LeftUp 1
+        Delay 100
+    Else
+        KeyDownS "4", 1
+        Delay 100
+        KeyUpS "4", 1
+        Delay 1000
+        //第一轮前三关用
+    	If  Round1F3=1    
+        	KeyDownS "1", 1
+        	Delay 100
+        	KeyUpS "1", 1
+        	Delay 100
+        	KeyDownS "2", 1
+        	Delay 100
+        	KeyUpS "2", 1
+        End If
+        //检测残血，用护甲防御
+        //Call FindPic(0,480,150,600,"Attachment:\HPLOW.bmp",0.9,intX4,intY4)//检测残血用护甲防御
+    	
+    	//GetColor=GetPixelColor(58,552)
+			//If GetColor <> 000088
+			
+			FindColorEx 0,500,80,545,"000088",0,0.7,intX,intY
+			If intX < 0 And intY < 0 Then
+			
+        		Delay 100
+        		StopThread IDX
+				StopThread IDJ
+				Delay 200
+				For 2
+					If DirectionKey = 1 Then
+						KeyPress "S", 3
+						KeyPress "F", 1
+						KeyPress "A", 1
+					ElseIf DirectionKey = 0 Then
+						KeyPress "E", 3
+						KeyPress "T", 1
+						KeyPress "Q", 1
+					End If
+        			Delay 100
+        		Next
+        		IDJ = BeginThread(J)
+        		IDX = BeginThread(X)
+        		
+        		//KeyPress "F", 10
+        		//Delay 1000
+
+				//KeyPress "6", 2
+        		//Delay 200
+        		//KeyPress "6", 2
+        		//Delay 200
+        	Else	
+        	End If	
+			
+        Goto JC
+    End If
+End Sub
+
+Sub XR
+    Rem XR
+    //系统菜单        
+    MoveTo 440, 575
+    Delay 100
+    LeftDown 1
+    Delay 300
+    LeftUp 1
+    Delay 100
+    //选择角色
+    MoveTo 400, 423
+    Delay 100
+    LeftDown 1
+    Delay 300
+    LeftUp 1
+    Delay 1500
+    Call FindPic(0,0,800,600,"Attachment:\XZJS.bmp",0.5,intX,intY)
+    If intX > 0 and intY > 0 Then 
+        //角色坐标
+        /*
+        MoveTo PX, PY
+        Delay 100
+        LeftDoubleClick 2
+        Delay 3000
+        JS = JS + 1
+        PX = PX + 128
+        If JS = 4 Then 
+            PX = 128
+            PY = 370
+		ELSEIf JS = 8 Then
+             If DirectionKey = 0 Then 
+                KeyDownS "S", 1
+				Delay 8000
+				KeyUpS "S", 1
+				Delay 100
+			ElseIf DirectionKey = 1 Then
+				KeyDownS "Down", 1
+				Delay 8000
+				KeyUpS "Down", 1
+				Delay 100
+			End If
+			PX = 128
+            PY = 370			
+        End If
+        */
+        
+		KeyDownS "Right", 1
+		Delay 200
+		KeyUpS "Right", 1
+		Delay 100
+		
+		MoveTo 395, 545
+
+		Delay 100
+        LeftClick 1
+        
+        JS = JS + 1
+		IsCreator = 0
+        Delay 3000
+
+
+        Goto after_XR
+    Else 
+        Goto XR
+    End If
+End Sub
+Sub U
+    If DirectionKey = 0 Then 
+        KeyDownS "W", 1
+        Delay 100
+        KeyUpS "W", 1
+        Delay 100
+    ElseIf DirectionKey = 1 Then
+        KeyDownS "Up", 1
+        Delay 100
+        KeyUpS "Up", 1
+        Delay 100
+    End If
+End Sub
+Sub D
+    If DirectionKey = 0 Then 
+        KeyDownS "S", 1
+        Delay 100
+        KeyUpS "S", 1
+        Delay 100
+    ElseIf DirectionKey = 1 Then
+        KeyDownS "Down", 1
+        Delay 100
+        KeyUpS "Down", 1
+        Delay 100
+    End If
+End Sub
+Sub R
+FindPic 0,0,800,600,"Attachment:\右选.bmp",0.9,intX,intY
+If intX > 0 And intY > 0 Then
+    MoveTo intX+2, intY+2
+        Delay 100
+        LeftClick 1
+        Delay 200
+Else
+    MoveTo 741, 138
+        LeftClick 1
+        Delay 100
+End If
+
+/*
+    If DirectionKey = 0 Then 
+        KeyDownS "D", 1
+        Delay 100
+        KeyUpS "D", 1
+        Delay 100
+    ElseIf DirectionKey = 1 Then
+        KeyDownS "Right", 1
+        Delay 100
+        KeyUpS "Right", 1
+        Delay 100
+    End If
+    */
+End Sub
